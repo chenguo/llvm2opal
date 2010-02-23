@@ -150,21 +150,15 @@ instr_binop (buf_t *ibuf, buf_t *obuf, vars_t *vars, loc_t *dest)
   /* All remaining tokens are the arguments of the intruction. */
   putword ("( ", obuf, strlen ("( "));
 
-  if (type != I32)
-    print_cast (type, obuf);
   skip_word (ibuf);
   skip_space (ibuf);
-  char *arg1 = parse_arg (ibuf->ptr, args, vars);
-  putword (arg1, obuf, wordlen (arg1));
+  print_arg (ibuf, obuf, vars, args, type);
 
   print_op (instruction, obuf);
 
-  if (type != I32)
-    print_cast (type, obuf);
   skip_word (ibuf);
   skip_space (ibuf);
-  char *arg2 = parse_arg (ibuf->ptr, argsi, vars);
-  putword (arg2, obuf, wordlen (arg2));
+  print_arg (ibuf, obuf, vars, argsi, type);
 
   putword (" );\n", obuf, strlen (" );\n"));    
 }
@@ -195,21 +189,15 @@ instr_icmp (buf_t *ibuf, buf_t *obuf, vars_t *vars)
   /* All remaining tokens are the arguments of the intruction. */
   putword ("( ", obuf, strlen ("( "));
 
-  if (type != I32)
-    print_cast (type, obuf);
   skip_word (ibuf);
   skip_space (ibuf);
-  char *argument = parse_arg (ibuf->ptr, args, vars);
-  putword (arg1, obuf, wordlen (arg1));
+  print_arg (ibuf, obuf, vars, args, type);
 
   print_cond (cond, obuf);
 
-  if (type != I32)
-    print_cast (type, obuf);
   skip_word (ibuf);
   skip_space (ibuf);
-  argument = parse_arg (ibuf->ptr, argsi, vars);
-  putword (argument, obuf, wordlen (argument));
+  print_arg (ibuf, obuf, vars, args, type);
 
   putword (" );\n", obuf, strlen (" );\n"));    
 }
@@ -238,12 +226,9 @@ instr_select (buf_t *ibuf, buf_t *obuf, vars_t *vars)
   skip_space (ibuf);
   /* Sign doesn't matter in this case. */
   int type = parse_type (ibuf->ptr, true);
-  if (type != I32)
-    print_cast (type, obuf);
   skip_word (ibuf);
   skip_space (ibuf);
-  char *value = parse_arg (ibuf->ptr, args, vars);
-  putword (value, obuf, wordlen (value));
+  print_arg (ibuf, obuf, vars, args, type);
 
   putword (" : ", obuf, strlen (" : "));
 
@@ -251,12 +236,9 @@ instr_select (buf_t *ibuf, buf_t *obuf, vars_t *vars)
   skip_word (ibuf);
   skip_space (ibuf);
   type = parse_type (ibuf->ptr, true);
-  if (type != I32)
-    print_cast (type, obuf);
   skip_word (ibuf);
   skip_space (ibuf);
-  value = parse_arg (ibuf->ptr, args, vars);
-  putword (value, obuf, wordlen (value));
+  print_arg (ibuf, obuf, vars, args, type);
 
   putword (";\n", obuf, strlen (";\n"));
 }
@@ -405,6 +387,17 @@ parse_type (char *type, bool unsign)
   else if (xstrcmp (type, "double", wordlen ("double")))
     ret = DFLT;
   return ret;
+}
+
+
+/* Print argument. */
+static inline void
+print_arg (buf_t *ibuf, buf_t *obuf, vars_t *vars, char **arg_src, int type)
+{
+  if (type != I32)
+    print_cast (type, obuf);
+  char *argument = parse_arg (ibuf->ptr, arg_src, vars);
+  putword (argument, obuf, wordlen (argument));
 }
 
 

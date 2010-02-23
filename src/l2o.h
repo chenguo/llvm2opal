@@ -101,6 +101,8 @@ static char * parse_arg (char *argument, char **arg_src, vars_t *vars);
 static int parse_icmp_cond (char *cond);
 static int parse_op (char *op, bool *unsign);
 static int parse_type (char *type, bool unsign);
+static inline void print_arg (buf_t *ibuf, buf_t *obuf, vars_t *vars,
+                              char **arg_src, int type);
 static void print_cast (int type, buf_t *obuf);
 static void print_cond (int cond, buf_t *obuf);
 static void print_op (int instruction, buf_t *obuf);
