@@ -1,0 +1,17 @@
+#! /usr/bin/env bash
+
+echo "Basic test 1: "
+../llvm2opal testfiles/test1.in > tmp 
+
+diff --brief tmp testfiles/test1.out > /dev/null\
+  && echo "  PASSED."\
+  || echo "  FAILED."
+
+echo "Basic test 2: "
+../llvm2opal testfiles/test2.in > tmp
+
+diff --brief tmp testfiles/test2.out > /dev/null\
+  && echo "  PASSED."\
+  || echo "  FAILED."
+
+rm tmp

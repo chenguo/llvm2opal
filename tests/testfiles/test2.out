@@ -1,0 +1,6 @@
+DX_RETURNT p1 (DX_PLIST) {
+  IREGISTER tmp61 = ( SOURCE1 * S2ORI );
+  IREGISTER tmp63 = ( tmp61 + S3ORI );
+  tmp63 = ( (int16_t) SOURCE4 + (int16_t) S5ORI );
+}
+

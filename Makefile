@@ -9,5 +9,8 @@ bufops.o: src/bufops.c
 l2o.o: src/l2o.c
 	gcc -O -c src/l2o.c
 
+check:
+	@make check -sC tests/
+
 clean:
 	@rm -f llvm2opal src/*.o src/*~ src/*#

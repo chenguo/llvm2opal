@@ -1,0 +1,31 @@
+OPCODE 0xFF0
+define void @p0(i32 %a, i32 %a1, i32 %a2, i32 %a3, i32 %a4, i32* %a5, i32 %a6, i32 %a7, i32 %a8) {
+entry:
+    %tmp28 = mul i32 %a3, %a1        ; <i32> [#uses=1]
+    %tmp271 = add i32 %a, %a1        ; <i32> [#uses=1]
+    %cmp = icmp eq i32 %a6, 0        ; <i1> [#uses=1]
+    %select = select i1 %cmp, i32 %tmp28, i32 %tmp271        ; <i32> [#uses=1]
+    %tmp30 = add i32 %select, %a2        ; <i32> [#uses=2]
+    %tmp32 = mul i32 %tmp30, %a3        ; <i32> [#uses=1]
+    %tmp600 = add i32 %tmp30, %a3        ; <i32> [#uses=1]
+    %cmp9 = icmp eq i32 %a7, 0        ; <i1> [#uses=1]
+    %select10 = select i1 %cmp9, i32 %tmp32, i32 %tmp600        ; <i32> [#uses=2]
+    %tmp34 = add i32 %select10, %a4        ; <i32> [#uses=1]
+    %tmp602 = mul i32 %select10, %a4        ; <i32> [#uses=1]
+    %cmp11 = icmp eq i32 %a8, 0        ; <i1> [#uses=1]
+    %select12 = select i1 %cmp11, i32 %tmp34, i32 %tmp602        ; <i32> [#uses=1]
+    store i32 %select12, i32* %a5
+    ret void
+}
+
+OPCODE 0xFF1
+define void @p1(i32 %a, i32 %a1, i32 %a2, i32 %a3, i32 %a4, i32* %a5) {
+entry:
+    %tmp61 = mul i32 %a, %a1        ; <i32> [#uses=1]
+    %tmp63 = add i32 %tmp61, %a2        ; <i32> [#uses=1]
+    %tmp65 = mul i32 %tmp63, %a3        ; <i32> [#uses=1]
+    %tmp67 = add i32 %tmp65, %a4        ; <i32> [#uses=1]
+    store i32 %tmp67, i32* %a5
+    ret void
+}
+

@@ -1,0 +1,25 @@
+DX_RETURNT p0 (DX_PLIST) {
+  IREGISTER tmp28 = ( SOURCE4 * S2ORI );
+  IREGISTER tmp271 = ( SOURCE1 + S2ORI );
+  IREGISTER cmp = ( SOURCE6 == 0 );
+  IREGISTER select = ( cmp )? (uint32_t) tmp28 : (uint32_t) tmp271;
+  IREGISTER tmp30 = ( select + S3ORI );
+  IREGISTER tmp32 = ( tmp30 * S4ORI );
+  IREGISTER tmp600 = ( tmp30 + S4ORI );
+  IREGISTER cmp9 = ( SOURCE7 == 0 );
+  IREGISTER select10 = ( cmp9 )? (uint32_t) tmp32 : (uint32_t) tmp600;
+  IREGISTER tmp34 = ( select10 + S5ORI );
+  IREGISTER tmp602 = ( select10 * S5ORI );
+  IREGISTER cmp11 = ( SOURCE8 == 0 );
+  IREGISTER select12 = ( cmp11 )? (uint32_t) tmp34 : (uint32_t) tmp602;
+  WRITE_DEST ( select12 );
+}
+
+DX_RETURNT p1 (DX_PLIST) {
+  IREGISTER tmp61 = ( SOURCE1 * S2ORI );
+  IREGISTER tmp63 = ( tmp61 + S3ORI );
+  IREGISTER tmp65 = ( tmp63 * S4ORI );
+  IREGISTER tmp67 = ( tmp65 + S5ORI );
+  WRITE_DEST ( tmp67 );
+}
+
