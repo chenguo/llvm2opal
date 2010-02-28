@@ -659,7 +659,7 @@ translate (buf_t *ibuf, buf_t *obuf, FILE *ofl)
           func_end = true;
           ibuf->ptr += 2;
           if (opcode)
-            putword ("\n\n", obuf, strlen ("\n\n"));
+            putword ("\n", obuf, strlen ("\n"));
           else
             putword ("}\n\n", obuf, strlen ("}\n\n"));
         }

@@ -1,0 +1,61 @@
+#! /usr/bin/env perl
+
+print "opening $ARGV[0]\n";
+
+open (my $in, "<", $ARGV[0]) || die ("Failed to open input file: $!");
+
+$step = 0;
+
+while (<$in>)
+  {
+    # Locat dx_set.
+    if ($step == 0 && $_ =~ /dx_sethi/)
+      {
+        $step = 1;
+      }
+    # Locate last else statement.
+    elsif ($step == 1 && $_ =~ /else {/)
+      {
+        $save = $_;
+        for ($i = 1; $i <= $#ARGV; $i++)
+          {
+            ins_file ($ARGV[$i]);
+          }
+        print $save;
+      }
+    print $_;
+  }
+
+
+sub ins_file {
+  my $file = shift;
+  open (my $src, "<", $file) || die ("Failed to open input file: $!");
+
+  $first_func = 1;
+
+  while (<$src>)
+    {
+      if ($_ =~ /OPCODE /)
+        {
+          # Print a closing bracket for previous function, if needed.
+          if ($first_func)
+            {
+              $first_func = 0;
+            }
+          else
+            {
+              print "  }\n";
+            }
+          $_ =~ s/OPCODE (.*)\n/$1/g;
+          print "  else if (op==$_)\n";
+          print "  {\n";
+        }
+      elsif ($_ !~ /^\n/)
+        {
+          $_ =~ s/^\s*/	/g; 
+          print $_;
+        }
+    }
+  # Print last closing bracket.
+  print "  }\n";
+}
