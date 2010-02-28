@@ -129,11 +129,11 @@ static inline void print_arg (buf_t *ibuf, buf_t *obuf, vars_t *vars,
 static void print_cast (int type, buf_t *obuf);
 static void print_cond (int cond, buf_t *obuf);
 static void print_op (int instruction, buf_t *obuf);
-static void print_arg ();
+static void print_opcode (buf_t *ibuf, buf_t *obuf);
 static void prototype (buf_t *ibuf, buf_t *obuf, vars_t *vars);
 static void regop (buf_t *ibuf, buf_t *obuf, vars_t *vars);
 static void store (buf_t *ibuf, buf_t *obuf, vars_t *vars);
 static void translate (buf_t *ibuf, buf_t *obuf, FILE *ofl);
-static void usage (void);
+static void usage (int exit_code);
 
 #endif

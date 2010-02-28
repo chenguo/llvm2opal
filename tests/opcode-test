@@ -1,0 +1,8 @@
+#! /usr/bin/env bash
+
+echo "Opcode test: "
+../llvm2opal -o testfiles/test1.in tmp 
+
+diff --brief tmp testfiles/test1op.out > /dev/null\
+  && echo "  PASSED."\
+  || echo "  FAILED."

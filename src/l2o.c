@@ -1,4 +1,5 @@
 #include <ctype.h>
+#include <getopt.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -7,22 +8,63 @@
 #include "l2o.h"
 #include "bufops.h"
 
+#define SKIP_LINE() {\
+  char *tmp = strchr (ibuf->ptr, '\n');\
+  if (!tmp)\
+    break;\
+  else if (++tmp < ibuf->eob)\
+    ibuf->ptr = tmp;\
+  continue;\
+} 
+
+bool opcode;
+
+enum {HELP_OPT};
+
+static struct option const longopts[] =
+{
+  {"opcode", no_argument, NULL, 'o'}, 
+  {"help", no_argument, NULL, HELP_OPT},
+  {NULL, 0, NULL, 0}
+};
 
 int
 main (int argc, char **argv)
 {
-  if (argc != 2 && argc != 3)
-    usage();
+  opcode = false;
+
+  while (1)
+    {
+      int this_optind = optind ? optind : 1;
+      char opt = getopt_long (argc, argv, "o", longopts, NULL);
+      if (opt == -1)
+        break;
+
+      switch (opt)
+        {
+        case 'o': opcode = true;
+          break;
+
+        case HELP_OPT: usage (EXIT_SUCCESS);
+          break;
+
+        default: usage (EXIT_FAILURE);
+        }
+    }
 
   /* Parse infile, outfile; open file descriptors. */
   FILE *ifl, *ofl;
-  if ((ifl = fopen (argv[1], "r")) == NULL)
+  if ((ifl = fopen (argv[optind++], "r")) == NULL)
     error ("Cannot open input file.");
 
-  if (argc == 2)
+  if (optind < argc)
+    {
+      ofl = fopen (argv[optind], "w");
+      if (ofl == NULL)
+        error ("Cannot open output file.");
+    }
+  else
     ofl = stdout;
-  else if (argc == 3 && (ofl = fopen (argv[2], "w")) == NULL)
-    error ("Cannot open output file.");
 
   /* Declare and initialize input and output buffers. */
   buf_t ibuf, obuf;
@@ -237,7 +279,6 @@ match_arg (char *var, vars_t *vars)
   return 0;
 }
 
-
 /* Parse instruction argument. */
 static char *
 parse_arg (char *argument, char **arg_src, vars_t *vars)
@@ -445,6 +486,19 @@ print_op (int instruction, buf_t *obuf)
     error ("Invalid intruction operator.");
 }
 
+/* Print the opcode. */
+static void
+print_opcode (buf_t *ibuf, buf_t *obuf)
+{
+  /* Opcode string is of form OPCODE 0xFFF. */
+  putword (ibuf->ptr, obuf, wordlen (ibuf->ptr));
+  putword (" ", obuf, wordlen (ibuf->ptr));
+  skip_word (ibuf);
+  skip_space (ibuf);
+  putword (ibuf->ptr, obuf, wordlen (ibuf->ptr));
+  putword ("\n", obuf, strlen ("\n"));
+}
+
 /* Translate prototpye and record arguments. */
 static void
 prototype (buf_t *ibuf, buf_t *obuf, vars_t *vars)
@@ -584,28 +638,33 @@ translate (buf_t *ibuf, buf_t *obuf, FILE *ofl)
       skip_space (ibuf);
 
       /* Check for content of line. */
-      if (xstrcmp (ibuf->ptr, "define", strlen ("define")))
-        prototype (ibuf, obuf, &vars);
+      if (xstrcmp (ibuf->ptr, "opcode", strlen ("opcode")))
+        {
+          if (!opcode)
+           SKIP_LINE();
+          print_opcode (ibuf, obuf);
+        }
+      else if (xstrcmp (ibuf->ptr, "define", strlen ("define")))
+        {
+          prototype (ibuf, obuf, &vars);
+          if (opcode)
+            SKIP_LINE();
+        }
       else if (xstrcmp (ibuf->ptr, "%", strlen ("%")))
         regop (ibuf, obuf, &vars);
       else if (xstrcmp (ibuf->ptr, "store", strlen ("store")))
         store (ibuf, obuf, &vars);
       else if (xstrcmp (ibuf->ptr, "}", strlen ("}")))
         {
-          putword ("}\n\n", obuf, strlen ("}\n\n"));
           func_end = true;
           ibuf->ptr += 2;
+          if (opcode)
+            putword ("\n\n", obuf, strlen ("\n\n"));
+          else
+            putword ("}\n\n", obuf, strlen ("}\n\n"));
         }
-      /* Else skip to next line. */
       else
-        {
-          char *tmp = strchr (ibuf->ptr, '\n');
-          if (!tmp)
-            break;
-          else if (++tmp < ibuf->eob)
-            ibuf->ptr = tmp;
-          continue;
-        }
+        SKIP_LINE();
 
       fwrite (obuf->buf, obuf->ptr - obuf->buf, 1, ofl);
       char *tmp = strchr (ibuf->ptr, '\n');
@@ -618,11 +677,15 @@ translate (buf_t *ibuf, buf_t *obuf, FILE *ofl)
 
 
 static void
-usage (void)
+usage (int exit_code)
 {
   fprintf (stderr, "Correct usage for llvm2opal:\n\
-$ llvm2opal infile outfile\n\
-    infile: input file containing LLVM immediate code\n\
-    outfile: desired output file containing opal magic code\n");
-  exit (1);
+$ llvm2opal [OPTION]... infile outfile\n\n\
+OPTIONS:\n\
+  -o, --opcode            Print opcode instead of function prototype.\n\n\
+FILES:\n\
+  infile: input file containing LLVM immediate code\n\
+  outfile: desired output file containing opal magic code, STDOUT if not\n\
+    specified\n\n");
+  exit (exit_code);
 }
