@@ -152,8 +152,8 @@ static void
 instr_binop (buf_t *ibuf, buf_t *obuf, vars_t *vars, loc_t *dest)
 {
   int type = -1;
-  bool unsign = false;
-  int instruction = parse_op (ibuf->ptr, &unsign);
+  int instruction = parse_op (ibuf->ptr);
+  bool unsign = (instruction != UDIV && instruction != UREM)? true : false;
 
   /* Increment to instruction's type. */
   while (ibuf->ptr != ibuf->eob && type == -1)
@@ -348,29 +348,33 @@ parse_icmp_cond (char *cond)
 
 /* Parse the instruction. */
 static int
-parse_op (char *op, bool *unsign)
+parse_op (char *op)
 {
   /* By default unsign is false. */
   if (xstrcmp (op, "add", wordlen ("add")))
     return ADD;
+  else if (xstrcmp (op, "fadd", wordlen ("fadd")))
+    return FADD;
   else if (xstrcmp (op, "sub", wordlen ("sub")))
     return SUB;
+  else if (xstrcmp (op, "fsub", wordlen ("fsub")))
+    return FSUB;
   else if (xstrcmp (op, "mul", wordlen ("mul")))
     return MUL;
+  else if (xstrcmp (op, "fmul", wordlen ("fmul")))
+    return FMUL;
   else if (xstrcmp (op, "udiv", wordlen ("udiv")))
-    {
-      *unsign = true;
-      return UDIV;
-    }
+    return UDIV;
   else if (xstrcmp (op, "sdiv", wordlen ("sdiv")))
     return SDIV;
+  else if (xstrcmp (op, "fdiv", wordlen ("fdiv")))
+    return FDIV;
   else if (xstrcmp (op, "urem", wordlen ("urem")))
-    {
-      *unsign = true;
-      return UREM;
-    }
+    return UREM;
   else if (xstrcmp (op, "srem", wordlen ("srem")))
     return SREM;
+  else if (xstrcmp (op, "frem", wordlen ("frem")))
+    return FREM;
   else if (xstrcmp (op, "and", wordlen ("and")))
     return AND;
   else if (xstrcmp (op, "or", wordlen ("or")))
@@ -437,6 +441,10 @@ print_cast (int type, buf_t *obuf)
     putword ("(int64_t) ", obuf, strlen ("(uint64_t) "));
   else if (type == UI64)
     putword ("(uint64_t) ", obuf, strlen ("(uint64_t) "));
+  else if (type == SFLT)
+    putword ("(float) ", obuf, strlen ("(float) "));
+  else if (type == DFLT)
+    putword ("(double) ", obuf, strlen ("(double) "));
   else
     error ("Invalid type.");
 }
@@ -467,15 +475,15 @@ print_cond (int cond, buf_t *obuf)
 static void
 print_op (int instruction, buf_t *obuf)
 {
-  if (instruction == ADD)
+  if (instruction == ADD || instruction == FADD)
     putword (" + ", obuf, strlen (" + "));
-  else if (instruction == SUB)
+  else if (instruction == SUB || instruction == FSUB)
     putword (" - ", obuf, strlen (" + "));
-  else if (instruction == MUL)
+  else if (instruction == MUL || instruction == FMUL)
     putword (" * ", obuf, strlen (" * "));
-  else if (instruction == UDIV || instruction == SDIV)
+  else if (instruction == UDIV || instruction == SDIV || instruction == FDIV)
     putword (" / ", obuf, strlen (" / "));
-  else if (instruction == SREM || instruction == UREM)
+  else if (instruction == SREM || instruction == UREM || instruction == FREM)
     putword (" % ", obuf, strlen (" % "));
   else if (instruction == AND)
     putword (" & ", obuf, strlen (" & "));

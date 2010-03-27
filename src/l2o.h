@@ -38,17 +38,21 @@ typedef struct function_variables
 } vars_t;
 
 
-/* Insructions. fadd, fsub, etc later?
-*/
+/* Insructions. */
 enum instructions
 {
     ADD,
+    FADD,
     SUB,
+    FSUB,
     MUL,
+    FMUL,
     UDIV,
     SDIV,
-    SREM,
+    FDIV,
     UREM,
+    SREM,
+    FREM,
     AND,
     OR,
     XOR,
@@ -99,7 +103,7 @@ static void instr_select (buf_t *ibuf, buf_t *obuf, vars_t *vars);
 static int match_arg (char *var, vars_t *vars);
 static char * parse_arg (char *argument, char **arg_src, vars_t *vars);
 static int parse_icmp_cond (char *cond);
-static int parse_op (char *op, bool *unsign);
+static int parse_op (char *op);
 static int parse_type (char *type, bool unsign);
 static inline void print_arg (buf_t *ibuf, buf_t *obuf, vars_t *vars,
                               char **arg_src, int type);
