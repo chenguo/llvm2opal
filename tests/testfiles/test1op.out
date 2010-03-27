@@ -14,12 +14,10 @@ OPCODE 0xFF0
   IREGISTER select12 = ( cmp11 )? (uint32_t) tmp34 : (uint32_t) tmp602;
   WRITE_DEST ( select12 );
 
-
 OPCODE 0xFF1
   IREGISTER tmp61 = ( SOURCE1 * S2ORI );
   IREGISTER tmp63 = ( tmp61 + S3ORI );
   IREGISTER tmp65 = ( tmp63 * S4ORI );
   IREGISTER tmp67 = ( tmp65 + S5ORI );
   WRITE_DEST ( tmp67 );
-
 
